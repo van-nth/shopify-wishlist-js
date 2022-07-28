@@ -1,0 +1,15 @@
+#shopify-wishlist {
+  margin-left: 30px;
+}
+
+button.shopify-wishlist {
+  background-color: #000;
+  color: #fff;
+  padding: 10px;
+  width: auto;
+}
+
+button.shopify-wishlist.active {
+  background-color: red;
+  color: #fff;
+}

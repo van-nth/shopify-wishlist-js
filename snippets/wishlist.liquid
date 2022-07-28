@@ -1,0 +1,225 @@
+<style>
+  #shopify-wishlist {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    position: relative;
+  }
+
+  #shopify-wishlist svg {
+    height: 2.5rem;
+    width: 2.5rem;
+    fill: none;
+    vertical-align: middle;
+  }
+
+  button.add-to-wishlist-btn {
+    width: auto;
+    display: flex;
+    align-items: center;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 6px 8px;
+  }
+
+  .add-to-wishlist-btn:hover {
+    border: 1px solid;
+  }
+
+  .add-to-wishlist-btn span {
+    margin-left: 4px;
+    font-size: 13px;
+  }
+
+  button.add-to-wishlist-btn.active {}
+
+  button.add-to-wishlist-btn svg {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  .wishlist-count {
+    position: absolute;
+    background-color: #000;
+    color: #fff;
+    top: 10px;
+    left: 20px;
+    z-index: 2;
+    font-size: 10px;
+    border-radius: 50%;
+    display: block;
+    text-align: center;
+    font-weight: bold;
+    padding: 0 10px;
+  }
+
+  dialog {
+    background-color: #fff;
+    color: #000;
+    font-size: 12px;
+    width: 30%;
+    border: none;
+    position: absolute !important;
+    right: 0;
+    top: 100px;
+  }
+
+  .close-btn {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    width: 2.5rem;
+    height: 2.5rem;
+    border: none;
+    font-size: 14px;
+    color: #000;
+    font-weight: 600;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  .close-btn:hover {
+    scale: 1.1;
+  }
+</style>
+
+<button id="shopify-wishlist" type="button">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    class="h-6 w-6"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    stroke-width="1"
+  >
+    <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+  </svg>
+  <span class="wishlist-count">0</span>
+</button>
+
+<script>
+  const header = document.querySelector("#site-header > .header__icons");
+  const wishlistButton = document.getElementById("shopify-wishlist");
+
+
+  function getShopifyWishlist() {
+    let data;
+    try {
+      data = JSON.parse(localStorage.getItem("shopify-wishlist"));
+      if (data === null) {
+        throw new Error();
+      }
+    } catch(e) {
+      data = [];
+    }
+    return data;
+  }
+
+
+
+  function setShopifyWishlist(data) {
+    return localStorage.setItem("shopify-wishlist", JSON.stringify(data));
+  }
+
+  window.addEventListener("load", () => {
+    const productHandle = document
+      .getElementById("Wishlist")
+      .getAttribute("data-handle");
+
+    const wishlistCount = document.querySelector(".wishlist-count");
+    wishlistCount.innerText = getShopifyWishlist().length;
+
+    document.querySelectorAll(".product-form__buttons").forEach((buttonForm) => {
+      const button = document.createElement("button");
+      button.setAttribute("type", "button");
+      button.classList.add("add-to-wishlist-btn");
+      button.setAttribute("aria-label", "Add to wishlist");
+      button.innerHTML = wishlistIcon;
+
+      const buttonText = document.createElement("span");
+      buttonText.innerText = "Add to Wishlist"
+      button.appendChild(buttonText);
+
+      const path = button.querySelector("path");
+
+      let data = getShopifyWishlist();
+      console.log("data", data);
+      if (data.includes(productHandle)) {
+        button.classList.add("active");
+
+        path.setAttribute("fill", "red");
+      }
+
+      buttonForm.appendChild(button);
+
+      button.addEventListener("click", () => {
+        if (button.classList.contains("active")) {
+          data = data.filter((v) => v !== productHandle);
+
+          path.setAttribute("fill", "red");
+        } else {
+          data.push(productHandle);
+
+          path.setAttribute("fill", "transparent");
+        }
+        setShopifyWishlist(data);
+
+        wishlistCount.innerText = data.length;
+
+        button.classList.toggle("active");
+      });
+    });
+
+    const dialog = document.createElement("dialog");
+    // dialog.setAttribute("id", "shopify-wishlist-dialog");
+
+    document.body.appendChild(dialog);
+
+    wishlistButton.addEventListener("click", () => {
+      dialog.innerHTML = "";
+
+      dialog.showModal();
+
+      const div = document.createElement("div");
+
+      const closeButton = document.createElement("button");
+      closeButton.setAttribute("type", "button");
+      closeButton.classList.add("close-btn")
+      closeButton.innerText = "X";
+      closeButton.addEventListener("click", () => {
+        dialog.close()
+      });
+
+      div.appendChild(closeButton);
+
+      const data = getShopifyWishlist();
+
+      data.forEach(async (item) => {
+        const data = await fetch(`/products/${item}.json`).then((res) =>
+          res.json()
+        );
+
+
+        const d = document.createElement("div");
+        // d.innerText = data.product.title;
+        d.innerHTML = `
+          <div>
+            <h3>${data.product.title}</h3>
+            <p>${data.product.vendor}</p>
+          </div>
+        `;
+
+        div.appendChild(d);
+      });
+
+      dialog.appendChild(div);
+    })
+  });
+
+  const wishlistIcon = `
+    <svg class="icon icon-heart" viewBox="0 0 290 256" xmlns="http://www.w3.org/2000/svg">
+      <path d="M258.844192 127.790368L145 241.63456 31.1558082 127.790368c-26.9461761-26.946176-26.9461761-70.6345598 0-97.5807359 26.9461762-26.94617613 70.6345598-26.94617613 97.5807358 0L145 46.4730881l16.263456-16.263456c26.946176-26.94617613 70.63456-26.94617613 97.580736 0 26.946176 26.9461761 26.946176 70.6345599 0 97.5807359z" stroke="#000" stroke-width="20" fill="transparent" fill-rule="evenodd"/>
+    </svg>
+  `;
+</script>
