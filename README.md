@@ -1,8 +1,8 @@
 <div id="top"></div>
 <div align="center">
-<h3 align="center">Shopify Wishlist Snippet</h3>
+<h3 align="center">Shopify Wishlist</h3>
   <p align="center">
-    Create a simple Shopify Wishlist snippet
+    Create a simple Shopify Wishlist by Javascript
   </p>
 </div>
 
@@ -33,16 +33,16 @@
 
 ## About The Project
 
-[![Product Name Screen Shot][product-screenshot]](https://example.com)
+- Only need Javascript and a bit CSS code to implement the ADD-TO-WISHLIST function to your Shopify Store
 
-`repo_name`
+- Compatible with all Shopify Themes
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 ### Built With
 
 - Javascript
-- Liquid
+- CSS
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -52,18 +52,24 @@
 
 ### Installation
 
-1. In `snippets` folder, create a file `wishlist.liquid`
+1. Copy and paste 2 files `wishlist.js` and `wishlist.css` in this repo to `assets` folder in your Theme
 
-2. Copy and Paste all the content of the file `wishlist.liquid` in this repo
+2. Place these script in `theme.liquid` before the closing `</head>` tag
+
+```sh
+<script id="Wishlist" data-handle={{ product.handle }} src="{{ 'Wishlist.js' | asset_url }}" defer="defer"></script>
+```
+
+```sh
+{{ 'wishlist.css' | asset_url | stylesheet_tag }}
+```
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 ## Usage
 
-- Place this code wherever you want to render the snippet
-  ```sh
-  {%- render 'simple-wishlist' -%}
-  ```
+1. Click on the add-to-wishlist icon in a product, the product will be added to the Wishlist toggle Dialog
+2. To view the Wishlist Dialog
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
